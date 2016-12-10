@@ -1,0 +1,91 @@
+chmod +x ./go.sh
+
+dd=`date +"%Y%m%d" -d "-1day"`
+wget -t 0 http://192.168.1.11/access/www.你的网址.com_access_$dd.log.bz2
+if [ $? -eq 0 ]; then
+    echo "down log file is ok."
+else
+    echo "down log file error."
+fi
+
+bunzip2 -f www.你的网址.com_access_$dd.log.bz2
+if [ $? -eq 0 ]; then
+    echo "unzip file is ok."
+else
+    echo "unzip file is error."
+fi
+
+cc=`grep "Baiduspider" www.你的网址.com_access_$dd.log | wc -l`
+if [ $? -eq 0 ]; then
+    echo "select baidu is ok. baidu:"$cc
+else
+    echo "select baidu is error."
+fi
+
+changdi=`grep "Baiduspider" www.你的网址.com_access_$dd.log | grep "changdi-" | wc -l`
+if [ $? -eq 0 ]; then
+    echo 'select changdi is ok. changdi:'$changdi
+else
+    echo "select changdi is error"
+fi
+
+tuangou=`grep "Baiduspider" www.你的网址.com_access_$dd.log | grep "tuangou-" | wc -l`
+if [ $? -eq 0 ]; then
+    echo "select tuangou is ok. tuangou:"$tuangou
+else
+    echo "select tuangou is error."
+fi
+
+gonglue=`grep "Baiduspider" www.你的网址.com_access_$dd.log | grep "gonglue-" | wc -l`
+if [ $? -eq 0 ]; then
+    echo "select gonglue is ok. gonglue:"$gonglue
+else
+    echo "select gonglue is error."
+fi
+
+hotel=`grep "Baiduspider" www.你的网址.com_access_$dd.log | grep "view/hotel-" | wc -l`
+if [ $? -eq 0 ]; then
+    echo "select hotel is ok. hotel:"$hotel
+else
+    echo "select hotel is error."
+fi
+
+not=`grep "Baiduspider" www.你的网址.com_access_$dd.log | grep "404" | wc -l`
+if [ $? -eq 0 ]; then
+    echo "select 404 is ok. not:'$not
+else
+    echo "select 404 is error."
+fi
+
+all=`cat www.你的网址.com_access_$dd.log | awk '{print $0}'|sort|uniq|wc -l`
+if [ $? -eq 0 ]; then
+    echo "select all is ok. all:"$all
+else
+    echo "select all is error."
+fi
+
+ytime=`date +"%F" -d "-1day"`
+ww=$ytime,$all,$cc,$changdi,$tuangou,$gonglue,$hotel,$not
+echo "$ww" >> file-cd.csv
+if [ $? -eq 0 ]; then
+    echo 'write data is ok.'
+else
+    echo "write data error."
+fi
+
+rm -f www.你的网址.com_access_$dd.log
+if [ $? -eq 0 ]; then
+    echo "del log is ok."
+else
+    echo "del log date error."
+fi
+
+mail -s "Hello from Qixn by $dd Data file" Qixn@iamseo.com < file-cd.csv
+
+if [ $? -eq 0 ]; then
+    echo "mail send is ok."
+else
+    echo "mail send is error."
+fi
+
+echo "$ww"
